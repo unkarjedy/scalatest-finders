@@ -19,7 +19,6 @@ package org.scalatest.finders
 import org.scalatest.FunSuite
 import org.scalatest.Suite
 import org.scalatest.FeatureSpec
-import org.scalatest.fixture.FixtureSuite
 import org.scalatest.FreeSpec
 import org.scalatest.FlatSpec
 import org.scalatest.PropSpec

@@ -4,9 +4,9 @@ organization := "org.scalatest"
 
 version := "0.9.5"
 
-scalaVersion := "2.9.0"
+scalaVersion := "2.10.0"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.9.0" % "2.0.M6-SNAP4" % "test"
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0.RC1" % "test"
 
 resolvers ++= Seq("releases" at "http://oss.sonatype.org/content/repositories/releases",
                   "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots", 
