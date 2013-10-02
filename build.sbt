@@ -34,10 +34,10 @@ pomExtra := (
     </license>
   </licenses>
   <scm>
-    <url>http://code.google.com/p/scalatest/source/browse/</url>
-    <connection>scm:svn:http://scalatest.googlecode.com/svn/trunk/</connection>
+    <url>https://github.com/scalatest/scalatest-finders</url>
+    <connection>scm:git:git@github.com:scalatest/scalatest-finders.git</connection>
     <developerConnection>
-      scm:svn:http://scalatest.googlecode.com/svn/trunk/
+      scm:git:git@github.com:scalatest/scalatest-finders.git
     </developerConnection>
   </scm>
   <developers>
