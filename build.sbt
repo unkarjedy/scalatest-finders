@@ -6,6 +6,9 @@ version := "0.9.5"
 
 scalaVersion := "2.10.0"
 
+// disable using the Scala version in output paths and artifacts
+crossPaths := false
+
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0.RC1" % "test"
 
 resolvers ++= Seq("releases" at "http://oss.sonatype.org/content/repositories/releases",
