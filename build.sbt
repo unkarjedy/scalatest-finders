@@ -2,12 +2,15 @@ name := "scalatest-finders"
  
 organization := "org.scalatest"
 
-version := "0.9.5"
+version := "0.9.6"
 
 scalaVersion := "2.10.0"
 
 // disable using the Scala version in output paths and artifacts
 crossPaths := false
+
+// removes Scala dependency
+autoScalaLibrary := false
 
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0.RC1" % "test"
 
