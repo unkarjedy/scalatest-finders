@@ -49,7 +49,12 @@ public class StringLiteral implements AstNode {
   public void addChild(AstNode node) {
     throw new UnsupportedOperationException("StringLiteral does not support addChild method.");  
   }
-  
+
+  @Override
+  public boolean canBePartOfTestName() {
+    return true;
+  }
+
   public String value() {
     return value;
   }

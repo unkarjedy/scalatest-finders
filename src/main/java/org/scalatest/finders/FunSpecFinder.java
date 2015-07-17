@@ -23,13 +23,18 @@ import java.util.List;
 public class FunSpecFinder implements Finder {
   
   private String getTestNameBottomUp(MethodInvocation invocation) {
+    if (!invocation.args()[0].canBePartOfTestName()) return null;
     String result = invocation.args()[0].toString();
     AstNode node = invocation.parent();
     while (node != null) {
       if (node instanceof MethodInvocation) {
         MethodInvocation parentInvocation = (MethodInvocation) node;
         if (parentInvocation.name().equals("describe")) {
-          result = parentInvocation.args()[0].toString() + " " + result;
+          if (parentInvocation.args()[0].canBePartOfTestName()) {
+            result = parentInvocation.args()[0].toString() + " " + result;
+          } else {
+            return null;
+          }
         }
       }
       
@@ -52,7 +57,9 @@ public class FunSpecFinder implements Finder {
         MethodInvocation headInvocation = (MethodInvocation) head;
         if (headInvocation.name().equals("apply") && headInvocation.target() instanceof ToStringTarget && headInvocation.target().toString().equals("it")) {
           String testName = getTestNameBottomUp(headInvocation);
-          results.add(testName);
+          if (testName != null) {
+            results.add(testName);
+          }
         }
         else
           nodes.addAll(0, Arrays.asList(headInvocation.children()));
@@ -70,7 +77,12 @@ public class FunSpecFinder implements Finder {
         String name = invocation.name();
         if (name.equals("apply")) {
           String testName = getTestNameBottomUp(invocation);
-          result = new Selection(invocation.className(), testName, new String[] { testName });
+          result = testName != null ? new Selection(invocation.className(), testName, new String[] { testName }) : null;
+          if (testName == null) {
+            if (node.parent() != null) {
+              node = node.parent();
+            } else break;
+          }
         }
         else if (name.equals("describe")) {
           String displayName = getTestNameBottomUp(invocation);

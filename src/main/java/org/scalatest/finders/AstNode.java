@@ -27,4 +27,6 @@ public interface AstNode {
     String name();
     
     void addChild(AstNode node);
+
+    boolean canBePartOfTestName();
 }

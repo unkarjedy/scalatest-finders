@@ -16,11 +16,7 @@
 
 package org.scalatest.finders;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class WordSpecFinder implements Finder {
     
@@ -39,6 +35,7 @@ public class WordSpecFinder implements Finder {
   private String getTestNameBottomUp(MethodInvocation invocation) {
     String result = "";
     while (invocation != null) {
+      if (!invocation.target().canBePartOfTestName() || (!invocation.name().equals("in") && invocation.canBePartOfTestName())) return null;
       String targetText = invocation.name().equals("in") ? invocation.target().toString() : (invocation.target().toString() + " " + invocation.name());
       result = targetText + " " + result;
       if (invocation.parent() != null && invocation.parent() instanceof MethodInvocation)
@@ -67,7 +64,9 @@ public class WordSpecFinder implements Finder {
         MethodInvocation headInvocation = (MethodInvocation) head;
         if (headInvocation.name().equals("in")) {
           String testName = getTestNameBottomUp(headInvocation);
-          results.add(testName);
+          if (testName != null) {
+            results.add(testName);
+          }
         }
         else
           nodes.addAll(0, Arrays.asList(headInvocation.children()));
@@ -86,7 +85,12 @@ public class WordSpecFinder implements Finder {
         AstNode parent = invocation.parent();
         if (name.equals("in") && scopeSet.contains(parent.name())) {
           String testName = getTestNameBottomUp(invocation);
-          result = new Selection(invocation.className(), testName, new String[] { testName });
+          result = testName != null ? new Selection(invocation.className(), testName, new String[] { testName }) : null;
+          if (testName == null) {
+            if (node.parent() != null) {
+              node = node.parent();
+            } else break;
+          }
         }
         else if (scopeSet.contains(name)) {
           String displayName = getDisplayNameBottomUp(invocation);

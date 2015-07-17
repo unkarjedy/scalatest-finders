@@ -55,6 +55,11 @@ public class ConstructorBlock implements AstNode {
     if (!children.contains(node)) 
         children.add(node);
   }
+
+  @Override
+  public boolean canBePartOfTestName() {
+    return true;
+  }
 }
 
 /*class ConstructorBlock(

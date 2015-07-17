@@ -57,7 +57,12 @@ public class ToStringTarget implements AstNode {
     if (!children.contains(node))
       children.add(node);
   }
-  
+
+  @Override
+  public boolean canBePartOfTestName() {
+    return true;
+  }
+
   @Override
   public String toString() {
     return target.toString();

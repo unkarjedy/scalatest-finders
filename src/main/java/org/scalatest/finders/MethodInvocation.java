@@ -60,7 +60,17 @@ public class MethodInvocation implements AstNode {
     if (!children.contains(node))
       children.add(node);
   }
-  
+
+  @Override
+  public boolean canBePartOfTestName() {
+    for (AstNode child: children) {
+      if (!child.canBePartOfTestName()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public AstNode target() {
     return target;
   }

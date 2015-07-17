@@ -43,7 +43,12 @@ public class ClassDefinition implements AstNode {
     if (!children.contains(node)) 
       children.add(node);
   }
-  
+
+  @Override
+  public boolean canBePartOfTestName() {
+    return true;
+  }
+
   public String[] paramTypes() {
     return paramTypes;
   }

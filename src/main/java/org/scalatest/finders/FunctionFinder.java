@@ -24,7 +24,7 @@ abstract class FunctionFinder implements Finder {
     while (result == null) {
       if (node instanceof MethodInvocation) {
         MethodInvocation methodInv = (MethodInvocation) node;
-        if (getName().equals(methodInv.name()) && methodInv.parent() != null && methodInv.parent() instanceof ConstructorBlock && methodInv.args()[0] instanceof StringLiteral)
+        if (getName().equals(methodInv.name()) && methodInv.parent() != null && methodInv.parent() instanceof ConstructorBlock && methodInv.args()[0].canBePartOfTestName())
           result = new Selection(methodInv.className(), methodInv.className() + ": \"" + methodInv.args()[0].toString() + "\"", new String[] { methodInv.args()[0].toString() });
         else {
           if (node.parent() != null) 

@@ -23,11 +23,11 @@ public class SpecFinder implements Finder {
     
   private String getTestNameBottomUp(AstNode node) {
     String result = "";
-    if (node instanceof MethodDefinition || node instanceof ModuleDefinition) {
+    if (node instanceof MethodDefinition || node instanceof ModuleDefinition && node.canBePartOfTestName()) {
       result = node.name();
       node = node.parent();
       while (node != null) {
-        if (node instanceof ModuleDefinition) {
+        if (node instanceof ModuleDefinition && node.canBePartOfTestName()) {
           result = ((ModuleDefinition) node).name() + " " + result;
           node = node.parent();
         }

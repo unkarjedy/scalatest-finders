@@ -16,12 +16,15 @@
 
 package org.scalatest.finders;
 
+import java.util.Collection;
+import java.util.Collections;
+
 public class Selection {
     
     private String className;
     private String displayName;
     private String[] testNames;
-  
+
     public Selection(String className, String displayName, String[] testNames) {
         this.className = className;
         this.displayName = displayName;
