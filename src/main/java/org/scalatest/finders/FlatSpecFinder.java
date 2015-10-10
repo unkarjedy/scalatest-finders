@@ -123,26 +123,36 @@ public class FlatSpecFinder implements Finder {
             break;
           }
         }
+        if (scopeNode == null) {
+          AstNode tNode = beforeTopLevelNodeList.isEmpty() ? topLevelNode : beforeTopLevelNodeList.get(0);
+          if (isScope(node, true)) {
+            scopeNode = tNode;
+          }
+        }
         return scopeNode;
       }
     }
     else
       return null;
   }
-    
+
   private boolean isScope(AstNode node) {
+    return isScope(node, false);
+  }
+
+  private boolean isScope(AstNode node, boolean allowIt) {
     if (node instanceof MethodInvocation) {
       MethodInvocation invocation = (MethodInvocation) node;
-      return invocation.name().equals("of") || 
-              isScopeShould(invocation) || 
-              (invocation.name().equals("in") && invocation.target() != null && invocation.target() instanceof MethodInvocation && isScopeShould((MethodInvocation) invocation.target())); 
+      return invocation.name().equals("of") ||
+              isScopeShould(invocation, allowIt) ||
+              (invocation.name().equals("in") && invocation.target() != null && invocation.target() instanceof MethodInvocation && isScopeShould((MethodInvocation) invocation.target(), allowIt));
     }
     else
       return false;
   }
-  
-  private boolean isScopeShould(MethodInvocation invocation) {
-    return (invocation.name().equals("should") || invocation.name().equals("must")) && invocation.args().length > 0 && invocation.target() != null && !invocation.target().toString().equals("it"); 
+
+  private boolean isScopeShould(MethodInvocation invocation, boolean allowIt) {
+    return (invocation.name().equals("should") || invocation.name().equals("must")) && invocation.args().length > 0 && invocation.target() != null && (allowIt || !invocation.target().name().equals("it"));
   }
     
   private Selection getNodeTestSelection(AstNode node, String prefix, AstNode[] constructorChildren) {
