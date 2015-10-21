@@ -2,9 +2,19 @@ name := "scalatest-finders-patched"
  
 organization := "org.scalatest"
 
-version := "0.9.7"
+version := "0.9.8"
 
 scalaVersion := "2.10.0"
+
+scalacOptions in Global += "-target:jvm-1.6"
+
+javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6")
+
+publishArtifact in (Compile, packageDoc) := false
+
+publishArtifact in packageDoc := false
+
+sources in (Compile,doc) := Seq.empty
 
 // disable using the Scala version in output paths and artifacts
 crossPaths := false
