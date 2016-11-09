@@ -25,8 +25,14 @@ public class FreeSpecFinder implements Finder {
   private String getTestNameBottomUp(MethodInvocation invocation) {
     String result = "";
     while (invocation != null) {
-      if (!invocation.target().canBePartOfTestName()) return null;
-      result = invocation.target().toString() + " " + result;
+      if (invocation.target().name().equals("taggedAs") && invocation.target() instanceof MethodInvocation) {
+        MethodInvocation taggedInvocation = (MethodInvocation) invocation.target();
+        if (!taggedInvocation.target().canBePartOfTestName()) return null;
+        result = taggedInvocation.target().toString() + " " + result;
+      } else {
+        if (!invocation.target().canBePartOfTestName()) return null;
+        result = invocation.target().toString() + " " + result;
+      }
       if (invocation.parent() != null && invocation.parent() instanceof MethodInvocation)
         invocation = (MethodInvocation) invocation.parent();
       else

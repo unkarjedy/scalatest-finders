@@ -79,7 +79,8 @@ public class FlatSpecFinder implements Finder {
       else {
         if (invocation.target() instanceof MethodInvocation) {
           MethodInvocation invocationTarget = (MethodInvocation) invocation.target();
-          if (invocationTarget.name().equals("should") || invocationTarget.name().equals("must"))
+          if (invocationTarget.name().equals("should") || invocationTarget.name().equals("must") ||
+                  invocationTarget.name().equals("taggedAs"))
             invocation = invocationTarget;
           else if (invocation.target().canBePartOfTestName()) {
             result = invocation.target().toString();
@@ -144,15 +145,23 @@ public class FlatSpecFinder implements Finder {
     if (node instanceof MethodInvocation) {
       MethodInvocation invocation = (MethodInvocation) node;
       return invocation.name().equals("of") ||
-              isScopeShould(invocation, allowIt) ||
-              (invocation.name().equals("in") && invocation.target() != null && invocation.target() instanceof MethodInvocation && isScopeShould((MethodInvocation) invocation.target(), allowIt));
+              isScopeTagged(invocation, allowIt) ||
+              (invocation.name().equals("in") && invocation.target() != null &&
+                      invocation.target() instanceof MethodInvocation &&
+                      isScopeTagged((MethodInvocation) invocation.target(), allowIt));
     }
     else
       return false;
   }
 
+  private boolean isScopeTagged(MethodInvocation invocation, boolean allowIt) {
+    return (invocation.name().equals("taggedAs") && invocation.target() instanceof MethodInvocation &&
+            isScopeShould((MethodInvocation) invocation.target(), allowIt)) || isScopeShould(invocation, allowIt);
+  }
+
   private boolean isScopeShould(MethodInvocation invocation, boolean allowIt) {
-    return (invocation.name().equals("should") || invocation.name().equals("must")) && invocation.args().length > 0 && invocation.target() != null && (allowIt || !invocation.target().name().equals("it"));
+    return (invocation.name().equals("should") || invocation.name().equals("must")) && invocation.args().length > 0 &&
+            invocation.target() != null && (allowIt || !invocation.target().name().equals("it"));
   }
     
   private Selection getNodeTestSelection(AstNode node, String prefix, AstNode[] constructorChildren) {
@@ -224,11 +233,13 @@ public class FlatSpecFinder implements Finder {
     if (target == null)
       return postfix;
     else {
-      if (target instanceof MethodInvocation && ((MethodInvocation) target).name().equals("should") && ((MethodInvocation) target).args()[0].canBePartOfTestName())
+      if (target instanceof MethodInvocation && target.name().equals("should") && ((MethodInvocation) target).args()[0].canBePartOfTestName())
         return "should " + ((MethodInvocation) target).args()[0];
-      else if (target instanceof MethodInvocation && ((MethodInvocation) target).name().equals("must") && ((MethodInvocation) target).args()[0].canBePartOfTestName())
+      else if (target instanceof MethodInvocation && target.name().equals("must") && ((MethodInvocation) target).args()[0].canBePartOfTestName())
         return "must " + ((MethodInvocation) target).args()[0];
-      else if (target.canBePartOfTestName())
+      else if (target instanceof MethodInvocation && target.name().equals("taggedAs")) {
+        return getTargetString(((MethodInvocation) target).target(), prefix, postfix);
+      } else if (target.canBePartOfTestName())
         return target.toString();
       else return null;
     } 

@@ -35,8 +35,14 @@ public class WordSpecFinder implements Finder {
   private String getTestNameBottomUp(MethodInvocation invocation) {
     String result = "";
     while (invocation != null) {
-      if (!invocation.target().canBePartOfTestName() || (!invocation.name().equals("in") && invocation.canBePartOfTestName())) return null;
-      String targetText = invocation.name().equals("in") ? invocation.target().toString() : (invocation.target().toString() + " " + invocation.name());
+      MethodInvocation nameInvocation = invocation;
+      if (invocation.target().name().equals("taggedAs") && invocation.target() instanceof MethodInvocation) {
+        nameInvocation = (MethodInvocation) invocation.target();
+      }
+      if (!nameInvocation.target().canBePartOfTestName() || (!invocation.name().equals("in") && invocation.canBePartOfTestName()))
+        return null;
+      String targetText = (nameInvocation.name().equals("in") || nameInvocation.name().equals("taggedAs")) ? nameInvocation.target().toString() :
+              (nameInvocation.target().toString() + " " + nameInvocation.name());
       result = targetText + " " + result;
       if (invocation.parent() != null && invocation.parent() instanceof MethodInvocation)
         invocation = (MethodInvocation) invocation.parent();
