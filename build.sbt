@@ -7,11 +7,11 @@ version := "0.9.10"
 scalaVersion := "2.12.9"
 
 scalacOptions in Global ++= Seq(
-  "-target:jvm-1.6",
+  "-target:jvm-1.8",
   "-deprecation"
 )
 
-javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6")
+javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8")
 
 publishArtifact in (Compile, packageDoc) := false
 
