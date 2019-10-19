@@ -2,7 +2,7 @@ name := "scalatest-finders-patched"
 
 organization := "org.scalatest"
 
-version := "0.9.10-SNAPSHOT" // TODO: update before uploading
+version := "0.9.10"
 
 scalaVersion := "2.12.9"
 
