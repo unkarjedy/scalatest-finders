@@ -161,7 +161,12 @@ public class FlatSpecFinder implements Finder {
 
   private boolean isScopeShould(MethodInvocation invocation, boolean allowIt) {
     return (invocation.name().equals("should") || invocation.name().equals("must")) && invocation.args().length > 0 &&
-            invocation.target() != null && (allowIt || !invocation.target().name().equals("it"));
+            invocation.target() != null && (allowIt || !isItOrThey(invocation));
+  }
+
+  private boolean isItOrThey(MethodInvocation invocation) {
+    String name = invocation.target().name();
+    return name.equals("it") || name.equals("they");
   }
     
   private Selection getNodeTestSelection(AstNode node, String prefix, AstNode[] constructorChildren) {
