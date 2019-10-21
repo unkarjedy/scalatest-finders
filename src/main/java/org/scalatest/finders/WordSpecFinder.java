@@ -41,8 +41,9 @@ public class WordSpecFinder implements Finder {
       }
       if (!nameInvocation.target().canBePartOfTestName() || (!invocation.name().equals("in") && invocation.canBePartOfTestName()))
         return null;
-      String targetText = (nameInvocation.name().equals("in") || nameInvocation.name().equals("taggedAs")) ? nameInvocation.target().toString() :
-              (nameInvocation.target().toString() + " " + nameInvocation.name());
+      String targetText = (nameInvocation.name().equals("in") || nameInvocation.name().equals("taggedAs"))
+          ? nameInvocation.target().toString()
+          : (nameInvocation.target().toString() + " " + nameInvocation.name());
       result.insert(0, targetText + " ");
       if (invocation.parent() != null && invocation.parent() instanceof MethodInvocation)
         invocation = (MethodInvocation) invocation.parent();

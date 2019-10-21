@@ -1,45 +1,50 @@
-name := "scalatest-finders-patched"
+import sbt.Keys._
 
-organization := "org.scalatest"
+lazy val commonSettings = Seq(
+  publishArtifact in(Compile, packageDoc) := false,
+  publishArtifact in packageDoc := false,
+  sources in(Compile, doc) := Seq.empty,
+  // disable using the Scala version in output paths and artifacts
+  crossPaths := false,
+  // removes Scala dependency
+  autoScalaLibrary := false,
 
-version := "0.9.10"
-
-scalaVersion := "2.12.9"
-
-scalacOptions in Global ++= Seq(
-  "-target:jvm-1.8",
-  "-deprecation"
+  resolvers ++= Seq(
+    "releases" at "http://oss.sonatype.org/content/repositories/releases",
+    "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
+  ),
+  publishArtifact in Test := false,
+  publishMavenStyle := false,
+  bintrayOrganization := Some("jetbrains"),
+  bintrayRepository := "scalatest"
+  //resolvers += Resolver.bintrayRepo("jetbrains", "scalatest"),
 )
 
-javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8")
 
-publishArtifact in (Compile, packageDoc) := false
+lazy val root = (project in file("."))
+  .settings(
+    commonSettings,
+    name := "scalatest-finders-patched",
+    organization := "org.scalatest",
+    version := "0.9.10",
+    licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
+    javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8")
+  )
 
-publishArtifact in packageDoc := false
+lazy val tests_2_1_7 = (project in file("tests_2_1_7"))
+  .dependsOn(root)
+  .settings(
+    commonSettings,
+    scalaVersion := "2.10.6",
+    scalacOptions in Global ++= Seq("-deprecation"),
+    libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.7" % Test
+  )
 
-sources in (Compile,doc) := Seq.empty
-
-// disable using the Scala version in output paths and artifacts
-crossPaths := false
-
-// removes Scala dependency
-autoScalaLibrary := false
-
-licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
-
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
-
-resolvers ++= Seq(
-  "releases" at "http://oss.sonatype.org/content/repositories/releases",
-  "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
-)
-
-publishArtifact in Test := false
-
-publishMavenStyle := false
-
-//resolvers += Resolver.bintrayRepo("jetbrains", "scalatest")
-
-bintrayOrganization := Some("jetbrains")
-
-bintrayRepository := "scalatest"
+lazy val tests_3_0_8 = (project in file("tests_3_0_8"))
+  .dependsOn(root)
+  .settings(
+    commonSettings,
+    scalaVersion := "2.12.9",
+    scalacOptions in Global ++= Seq("-deprecation"),
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
+  )
