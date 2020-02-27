@@ -19,6 +19,7 @@ package org.scalatest.finders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import static org.scalatest.finders.StringUtils.is;
 
 public class FreeSpecFinder implements Finder {
   
@@ -50,7 +51,7 @@ public class FreeSpecFinder implements Finder {
       AstNode head = nodes.remove(0);
       if (head instanceof MethodInvocation) {
         MethodInvocation headInvocation = (MethodInvocation) head;
-        if (headInvocation.name().equals("in") || headInvocation.name().equals("is")) {
+        if (is(headInvocation.name(), "in", "is")) {
           String testName = getTestNameBottomUp(headInvocation);
           if (testName != null) {
             results.add(testName);
@@ -71,14 +72,14 @@ public class FreeSpecFinder implements Finder {
         MethodInvocation invocation = (MethodInvocation) node;
         String name = invocation.name();
         AstNode parent = invocation.parent();
-        if ((name.equals("in") || name.equals("is")) && parent.name().equals("-")) {
+
+        if (is(name, "in") && parent instanceof ConstructorBlock) {
           String testName = getTestNameBottomUp(invocation);
-          result = testName != null ? new Selection(invocation.className(), testName, new String[] { testName }) : null;
-          if (testName == null) {
-            if (node.parent() != null) {
-              node = node.parent();
-            } else break;
-          }
+          result = testName == null ? null : new Selection(invocation.className(), testName, new String[] {testName});
+        }
+        else if (is(name, "in", "is") && parent.name().equals("-")) {
+          String testName = getTestNameBottomUp(invocation);
+          result = testName == null ? null : new Selection(invocation.className(), testName, new String[]{testName});
         }
         else if (name.equals("-")) {
           String displayName = getTestNameBottomUp(invocation);
@@ -88,8 +89,9 @@ public class FreeSpecFinder implements Finder {
       }
         
       if (result == null) {
-        if (node.parent() != null) 
-          node = node.parent();
+        AstNode parent = node.parent();
+        if (parent != null)
+          node = parent;
         else
           break;
       }
