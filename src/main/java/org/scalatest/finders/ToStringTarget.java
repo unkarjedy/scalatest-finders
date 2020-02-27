@@ -23,7 +23,7 @@ import java.util.List;
 public class ToStringTarget implements AstNode {
     
   private final String className;
-  private final AstNode parent;
+  private AstNode parent;
   private final List<AstNode> children;
   private final Object target;
     
@@ -43,6 +43,13 @@ public class ToStringTarget implements AstNode {
   
   public AstNode parent() {
     return parent;
+  }
+
+  // TestsOnly, in cases of cyclic dependencies
+  public void injectParent(AstNode newParent) {
+    if (parent != null) throw new AssertionError("parent already exists");
+    parent = newParent;
+    parent.addChild(this);
   }
   
   public AstNode[] children() {

@@ -23,7 +23,7 @@ import java.util.List;
 public class MethodInvocation implements AstNode {
   private final String className;
   private final AstNode target;
-  private final AstNode parent;
+  private AstNode parent; // TODO: due to cyclic references, e.g. target can be a child as well, try to rewrite with proper constructors
   private final List<AstNode> children;
   private final String name;
   private final AstNode[] args;
@@ -46,6 +46,13 @@ public class MethodInvocation implements AstNode {
   
   public AstNode parent() {
     return parent;
+  }
+
+  // TestsOnly, in cases of cyclic dependencies
+  public void injectParent(AstNode newParent) {
+    if (parent != null) throw new AssertionError("parent already exists");
+    parent = newParent;
+    parent.addChild(this);
   }
 
   public AstNode[] children() {
