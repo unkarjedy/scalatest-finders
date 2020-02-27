@@ -48,3 +48,12 @@ lazy val tests_3_0_8 = (project in file("tests_3_0_8"))
     scalacOptions in Global ++= Seq("-deprecation"),
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
   )
+
+lazy val tests_3_1_0 = (project in file("tests_3_1_0"))
+  .dependsOn(root)
+  .settings(
+    commonSettings,
+    scalaVersion := "2.13.1",
+    scalacOptions in Global ++= Seq("-deprecation"),
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.0" % Test
+  )
