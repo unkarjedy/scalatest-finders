@@ -21,9 +21,3 @@ public class PropSpecFinder extends FunctionFinder {
     return "property";
   }
 }
-
-/*package org.scalatest.finders
-
-class PropSpecFinder extends FunctionFinder {
-  val name = "property"
-}*/
