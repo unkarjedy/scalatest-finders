@@ -19,7 +19,8 @@ package org.scalatest.finders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import static org.scalatest.finders.StringUtils.is;
+
+import static org.scalatest.finders.utils.StringUtils.is;
 
 public class FreeSpecFinder implements Finder {
   
