@@ -26,7 +26,7 @@ lazy val root = (project in file("."))
     commonSettings,
     name := "scalatest-finders-patched",
     organization := "org.scalatest",
-    version := "0.9.11",
+    version := "0.9.12",
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
     javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8")
   )
