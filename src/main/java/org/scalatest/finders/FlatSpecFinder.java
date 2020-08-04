@@ -20,45 +20,50 @@ import java.util.*;
 
 import static org.scalatest.finders.LocationUtils.getParentOfType;
 import static org.scalatest.finders.LocationUtils.isValidName;
+import static org.scalatest.finders.utils.StringUtils.is;
 
 public class FlatSpecFinder implements Finder {
-  
+
   public Selection find(AstNode node) {
-    Selection result = null;  
+    Selection result = null;
+
     while (result == null) {
-      if (node instanceof ConstructorBlock) 
+      if (node instanceof ConstructorBlock)
         result = getAllTestSelection(node.className(), node.children());
       else if (node instanceof MethodInvocation) {
         MethodInvocation invocation = (MethodInvocation) node;
-        if (invocation.name().equals("of") || invocation.name().equals("in") || invocation.name().equals("should") || invocation.name().equals("must")) {
+        if (is(invocation.name(), "of", "in", "should", "must")) {
           ConstructorBlock constructor = getParentOfType(node, ConstructorBlock.class);
           if (constructor != null) {
             AstNode scopeNode = getScopeNode(node, constructor.children());
             if (scopeNode != null) {
               String prefix = getPrefix((MethodInvocation) scopeNode);
-              result = getNodeTestSelection(node, prefix, constructor.children());
+              result = prefix == null
+                  ? null
+                  : getNodeTestSelection(node, prefix, constructor.children());
             }
           }
         }
       }
-      
+
       if (result == null) {
-        if (node.parent() != null) 
+        if (node.parent() != null)
           node = node.parent();
         else
           break;
       }
     }
+
     return result;
   }
-    
+
   private Selection getAllTestSelection(String className, AstNode[] constructorChildren) {
     String prefix = null;
     List<String> testNames = new ArrayList<>();
     for (AstNode child : constructorChildren) {
       if (isScope(child))
         prefix = getPrefix((MethodInvocation) child);
-      if(prefix != null && child instanceof MethodInvocation && child.name().equals("in")) {
+      if (prefix != null && child instanceof MethodInvocation && child.name().equals("in")) {
         String testName = getTestName(prefix, (MethodInvocation) child);
         if (testName != null) {
           testNames.add(testName);
@@ -67,57 +72,61 @@ public class FlatSpecFinder implements Finder {
     }
     return new Selection(className, className, testNames.toArray(new String[0]));
   }
-    
+
   private String getPrefix(MethodInvocation invocation) {
     String result = null;
+
     while (result == null) {
       if (invocation.name().equals("of"))
         //result = invocation.target().toString();
         if (invocation.args()[0].canBePartOfTestName()) {
           result = invocation.args()[0].toString();
-        } else return null;
-      else {
-        if (invocation.target() instanceof MethodInvocation) {
-          MethodInvocation invocationTarget = (MethodInvocation) invocation.target();
-          if (invocationTarget.name().equals("should") || invocationTarget.name().equals("must") ||
-                  invocationTarget.name().equals("taggedAs"))
-            invocation = invocationTarget;
-          else if (invocation.target().canBePartOfTestName()) {
-            result = invocation.target().toString();
-          } else return null;
-        }
-        else if (invocation.target().canBePartOfTestName()) {
-          result = invocation.target().toString();
         } else {
-          return null;
+          break;
+        }
+      else if (invocation.target() instanceof MethodInvocation) {
+        MethodInvocation invocationTarget = (MethodInvocation) invocation.target();
+        if (is(invocationTarget.name(), "should", "must", "taggedAs")) {
+          invocation = invocationTarget;
+        } else if (invocationTarget.canBePartOfTestName()) {
+          result = invocationTarget.toString();
+        } else {
+          break;
         }
       }
+      else if (invocation.target().canBePartOfTestName()) {
+        result = invocation.target().toString();
+      }
+      else {
+        break;
+      }
     }
+
     return result;
   }
-    
+
   private AstNode getScopeNode(AstNode node, AstNode[] constructorChildren) {
     AstNode topLevelNode = null;
     while (node != null && topLevelNode == null) {
       if (node.parent() instanceof ConstructorBlock)
-       topLevelNode = node;
-      else 
-       node = node.parent();
+        topLevelNode = node;
+      else
+        node = node.parent();
     }
-    
+
     if (topLevelNode != null) {
       if (isScope(topLevelNode))
         return topLevelNode;
       else {
         List<AstNode> beforeTopLevelNodeList = new ArrayList<>();
         for (AstNode child : constructorChildren) {
-          if (!child.equals(topLevelNode)) 
+          if (!child.equals(topLevelNode))
             beforeTopLevelNodeList.add(child);
           else
             break;
         }
         AstNode scopeNode = null;
-        for(int i=beforeTopLevelNodeList.size() - 1; i >= 0; i--) {
+        for (int i = beforeTopLevelNodeList.size() - 1; i >= 0; i--) {
           AstNode tnode = beforeTopLevelNodeList.get(i);
           if (isScope(tnode)) {
             scopeNode = tnode;
@@ -132,8 +141,7 @@ public class FlatSpecFinder implements Finder {
         }
         return scopeNode;
       }
-    }
-    else
+    } else
       return null;
   }
 
@@ -145,18 +153,17 @@ public class FlatSpecFinder implements Finder {
     if (node instanceof MethodInvocation) {
       MethodInvocation invocation = (MethodInvocation) node;
       return invocation.name().equals("of") ||
-              isScopeTagged(invocation, allowIt) ||
-              (invocation.name().equals("in") && invocation.target() != null &&
-                      invocation.target() instanceof MethodInvocation &&
-                      isScopeTagged((MethodInvocation) invocation.target(), allowIt));
-    }
-    else
+          isScopeTagged(invocation, allowIt) ||
+          (invocation.name().equals("in") && invocation.target() != null &&
+              invocation.target() instanceof MethodInvocation &&
+              isScopeTagged((MethodInvocation) invocation.target(), allowIt));
+    } else
       return false;
   }
 
   private boolean isScopeTagged(MethodInvocation invocation, boolean allowIt) {
     return (invocation.name().equals("taggedAs") && invocation.target() instanceof MethodInvocation &&
-            isScopeShould((MethodInvocation) invocation.target(), allowIt)) || isScopeShould(invocation, allowIt);
+        isScopeShould((MethodInvocation) invocation.target(), allowIt)) || isScopeShould(invocation, allowIt);
   }
 
   private boolean isScopeShould(MethodInvocation invocation, boolean allowIt) {
@@ -168,16 +175,12 @@ public class FlatSpecFinder implements Finder {
     String name = invocation.target().name();
     return name.equals("it") || name.equals("they");
   }
-    
+
   private Selection getNodeTestSelection(AstNode node, String prefix, AstNode[] constructorChildren) {
-    if (prefix == null) {
-      return null;
-    }
     if (node instanceof ConstructorBlock) {
       List<String> testNames = getTestNamesFromChildren(prefix, Arrays.asList(node.children()));
       return new Selection(node.className(), prefix.length() > 0 ? prefix : node.className(), testNames.toArray(new String[0]));
-    }
-    else if (node instanceof MethodInvocation) {
+    } else if (node instanceof MethodInvocation) {
       MethodInvocation invocation = (MethodInvocation) node;
       String name = invocation.name();
       switch (name) {
@@ -211,11 +214,10 @@ public class FlatSpecFinder implements Finder {
         default:
           return null;
       }
-    }
-    else 
+    } else
       return null;
   }
-    
+
   private List<String> getTestNamesFromChildren(String prefix, List<AstNode> children) {
     Set<String> validSet = new HashSet<>();
     validSet.add("in");
@@ -231,8 +233,8 @@ public class FlatSpecFinder implements Finder {
     }
     return testNameList;
   }
-    
-  private String getTargetString(AstNode target, String prefix, String postfix)  {
+
+  private String getTargetString(AstNode target, String postfix) {
     if (target == null)
       return postfix;
     else {
@@ -241,15 +243,15 @@ public class FlatSpecFinder implements Finder {
       else if (target instanceof MethodInvocation && target.name().equals("must") && ((MethodInvocation) target).args()[0].canBePartOfTestName())
         return "must " + ((MethodInvocation) target).args()[0];
       else if (target instanceof MethodInvocation && target.name().equals("taggedAs")) {
-        return getTargetString(((MethodInvocation) target).target(), prefix, postfix);
+        return getTargetString(((MethodInvocation) target).target(), postfix);
       } else if (target.canBePartOfTestName())
         return target.toString();
       else return null;
-    } 
+    }
   }
-    
+
   private String getTestName(String prefix, MethodInvocation invocation) {
-    String name = getTargetString(invocation.target(), prefix, "");
+    String name = getTargetString(invocation.target(), "");
     return prefix == null || name == null ? null : prefix + " " + name;
   }
 }
